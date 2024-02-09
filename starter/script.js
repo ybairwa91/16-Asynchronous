@@ -134,7 +134,6 @@ communication protocol--a system of rules that allows two or more parties to com
 here in the case of HTTP it allows client and web server  to communicate
 and it works by sending requests and response messages from client to server and back
 
-*/
 
 //////////////////
 //callback hell
@@ -142,16 +141,9 @@ and it works by sending requests and response messages from client to server and
 //or in laymen language i want to load pakistan snip after india one is loaded,lets see how it works
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
-
-const getCountryData = function (country) {
-  const request = new XMLHttpRequest();
-  request.open('GET', `https://restcountries.com/v2/name/${country}`);
-  request.send();
-
-  request.addEventListener('load', function () {
-    const [data] = JSON.parse(this.responseText);
-    console.log(data);
-    const html = `<article class="country">
+//
+const renderCountry = function (data, className = '') {
+  const html = `<article class="country  ${className}">
   <img class="country__img" src="${data.flag}" />
   <div class="country__data">
     <h3 class="country__name">${data.name}</h3>
@@ -161,13 +153,235 @@ const getCountryData = function (country) {
     ).toFixed(1)}M people</p>
     <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
     <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
-  </div>
-                </article>`;
-    countriesContainer.insertAdjacentHTML('beforeend', html);
-    countriesContainer.style.opacity = 1;
+  </div> </article>`;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  countriesContainer.style.opacity = 1;
+};
+
+//////////i want  to call neighbour of frrst country called
+const getCountryAndNeighbour = function (country) {
+  //Ajax call:country 1
+  const request = new XMLHttpRequest();
+  request.open('GET', `https://restcountries.com/v2/name/${country}`);
+  request.send();
+  request.addEventListener('load', function () {
+    const [data] = JSON.parse(this.responseText);
+    renderCountry(data);
+
+    /// Get neighbour country:country 2
+    const neighbour = data.borders?.[0];
+    if (!neighbour) return;
+
+    //Ajax  call 2
+    const request2 = new XMLHttpRequest();
+    request2.open('GET', `https://restcountries.com/v2/alpha/${neighbour}`);
+    request2.send();
+    request2.addEventListener('load', function () {
+      const data2 = JSON.parse(this.responseText);
+      renderCountry(data2, 'neighbour');
+    });
   });
 };
+// getCountryAndNeighbour('Republic of India');
+getCountryAndNeighbour('russia');
+
+//callback hell
+setTimeout(() => {
+  console.log('1 Second Passed');
+  setTimeout(() => {
+    console.log('2 Second Passed');
+    setTimeout(() => {
+      console.log('3 Second Passed');
+      setTimeout(() => {
+        console.log('4 Second Passed');
+        setTimeout(() => {
+          console.log('5 Second Passed');
+        }, 1000);
+      }, 1000);
+    }, 1000);
+  }, 1000);
+}, 1000);
+
+//const request=new XMLHttpRequest():
+//request.open("GET","https://restcountries.com/v2/name/${country}");
+
+//request.send()
+/////
+const btn = document.querySelector('.btn-country');
+const countriesContainer = document.querySelector('.countries');
+
+//insertAdjacement
+const renderCountry = function (data, className = '') {
+  const html = `<article class="country  ${className}">
+  <img class="country__img" src="${data.flag}" />
+  <div class="country__data">
+    <h3 class="country__name">${data.name}</h3>
+    <h4 class="country__region">${data.region}</h4>
+    <p class="country__row"><span>👫</span>${(
+      +data.population / 1000000
+    ).toFixed(1)}M people</p>
+    <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+    <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+    </div> </article>`;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  countriesContainer.style.opacity = 1;
+};
+
+////Consuming promises
+
+// const getCountryData = function (country) {
+//   fetch(`https://restcountries.com/v2/name/${country}`)
+//     .then(function (response) {
+//       console.log(response);
+//       return response.json();
+//     })
+//     .then(function (data) {
+  //       console.log(data);
+  //       renderCountry(data[0]);
+//     });
+// };
+
+// getCountryData('usa');
+
+//callback helll is one thing we can escape using the promises
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => renderCountry(data[0]));
+};
+
+getCountryData('usa');
+getCountryData('Republic of india');
+getCountryData('Republic of india');
+
+*/
+
+///////////////
+//Topic--We learnt about what is synchronus and asynschronus programminh,method like eventlistener or say callback function to achieve async while
+//furthur developement is AJAX ,here is another laymen term is API which we understood very well
+//lets achieve AJAX
+const btn = document.querySelector('.btn-country');
+const countriesContainer = document.querySelector('.countries');
+
+function renderItem(data) {
+  const html = `<article class="country">
+  <img class="country__img" src="${data.flag}" />
+  <div class="country__data">
+    <h3 class="country__name">${data.name}</h3>
+    <h4 class="country__region">${data.region}</h4>
+    <p class="country__row"><span>👫</span>${(
+      data.population / 10000000
+    ).toFixed(1)}M people</p>
+    <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+    <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+  </div>
+</article>`;
+  countriesContainer.style.opacity = 1;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+}
+/*
+const getCountryData = function (country) {
+  const request = new XMLHttpRequest();
+  request.open('GET', `https://restcountries.com/v2/name/${country}`);
+  request.send();
+  request.addEventListener('load', function () {
+    const [data] = JSON.parse(request.responseText);
+    renderItem(data);
+  });
+};
+//now let us suppose we want to add two stacks now what to do
 getCountryData('Republic of India');
-// getCountryData('United States of America');
-// getCountryData('Pakistan');
-// getCountryData('Italy');
+getCountryData('usa');
+//now we use something call callback hell to save ourself from issue of which one to load first or
+//which one to load later,now let us do that easily
+//let us do callbackhell
+
+function getCountryAndNeighbour(country) {
+  const request = new XMLHttpRequest();
+  request.open('GET', `https://restcountries.com/v2/name/${country}`);
+  request.send();
+  //first country
+  request.addEventListener('load', function () {
+    const [data] = JSON.parse(this.responseText);
+    renderItem(data);
+    // console.log(this.responseText);
+    //inside of first callback
+    //another callback
+    const neighbour = data.borders[0];
+    console.log(neighbour);
+    const request2 = new XMLHttpRequest();
+    request2.open('GET', `https://restcountries.com/v2/alpha/${neighbour}`);
+    request2.send();
+    
+    request2.addEventListener('load', function () {
+      const neighbourIs = JSON.parse(this.responseText);
+      renderItem(neighbourIs);
+    });
+  });
+}
+
+getCountryAndNeighbour('argentina');
+
+*/
+function renderItem(data) {
+  const html = `<article class="country">
+  <img class="country__img" src="${data.flag}" />
+  <div class="country__data">
+    <h3 class="country__name">${data.name}</h3>
+    <h4 class="country__region">${data.region}</h4>
+    <p class="country__row"><span>👫</span>${(
+      data.population / 10000000
+    ).toFixed(1)}M people</p>
+    <p class="country__row"><span>🗣️</span>${data.languages[0]?.name}</p>
+    <p class="country__row"><span>💰</span>${data.currencies[0]?.name}</p>
+  </div>
+</article>`;
+  countriesContainer.style.opacity = 1;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+}
+
+// this is all about ajax and its uses in asynchronus programming now
+//lets come to promises which is furthur development in js introduced in ES6
+/*
+const request = fetch('https://restcountries.com/v2/name/Republic of India');
+console.log(request);
+*/
+
+//promise is like the container(object in js) for thefuture value we getting by the asynchronus
+//programming
+//now understand a topic called the promise lifecycle
+//since promise delivers the asynchronus result its value differ stage by stage and
+//and its time sensitive
+//pending stage denotes the promise before the future value is available
+//while settles stage denotes when promise delivered its promise
+///now understand two things here is that settled stage have two options either its fulfilled or rejected
+//now if its rejected(maybe cause an error of anytime) and ifs its fulfilled (due to successfully code execution)
+//these are different stage of promises and the this denote as The promise lifecycle
+//we can handle these different stage of promises.
+//promise settled only once so either its fulfilled or either its rejected
+
+//here is another term to learn which is conusme promise means u have promise as a return value
+//from the fetch function we saw above
+
+//so its right to saying that first u build a promise using fetch api which returns promise and then u
+//perfome some actions which we call consume promise
+
+//let consume promises as we seen what it is theoritically
+//here fetch is a function that returns promise
+//promise have a then method to handlle settled promises[here in this promise we have response from api]
+//now json method is the one who read the data came with the response when we call using promises
+//now here is one thing to understand is that json itself return an asynchronus programme.means it
+//also returns a promise as well[here is this promise we have data came with the response]
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v2/alpha/${country}`)
+    .then(response => response.json())
+    .then(data => {
+      renderItem(data);
+      //country 2 inside of second promise
+      const neighbour = data[0]?.borders?.[0]; 
+      if (!neighbour) return;
+      fetch(`https://restcountries.com/v2/name/{neighbour}).then(response=>response.json())
+    });
+};
+getCountryData('ind');
+///big improvement here if i compare with ajax call,more readable
