@@ -1,6 +1,25 @@
 'use strict';
-/*
 ///////////////////////////////////////
+////////forever codes
+const btn = document.querySelector('.btn-country');
+const countriesContainer = document.querySelector('.countries');
+const renderCountry = function (data, className = '') {
+  const html = `<article class="country  ${className}">
+  <img class="country__img" src="${data.flag}" />
+  <div class="country__data">
+    <h3 class="country__name">${data.name}</h3>
+    <h4 class="country__region">${data.region}</h4>
+    <p class="country__row"><span>👫</span>${(
+      +data.population / 1000000
+    ).toFixed(1)}M people</p>
+    <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+    <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+  </div> </article>`;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  countriesContainer.style.opacity = 1;
+};
+
+/*
 ////SYNCHRONOUS CODE
 //when a code is synchronous it will execute line by line and each line waits for
 //previous line to finish,
@@ -572,12 +591,288 @@ function getCountryData(country) {
 }
 
 getCountryData('australia');
-*/
 //lets see how async works behind the scene
 //why event loop and web api change the game
 
 //////
-//its a game of web api,callback,and callback queue that make sense to us
+//its a game of web api,callback,and callback queue that make sense to us and microstack call queue
+
+////EVENT LOOP
+console.log('Test Start');
+setTimeout(() => console.log('0 sec timer'), 0);
+Promise.resolve('Resolved Promise 1').then(res => console.log(res));
+console.log('Test end');
+
+Promise.resolve('Resolved promise 2').then(res => {
+  // setTimeout(() => console.log('HI'), 10000);
+  // for (let i = 0; i < 1000000000; i++) {}
+  console.log(res);
+});
+
+///BUILDING A SIMPLE PROMISE
+//understand that Promise is the constructor function which prototype contains lot of built in
+//methods
+//we creating a new object now by using Promise constructor function
+//Promise constructor function has only one Parameter[we call it executor function]
+//remember that constructor function method automatically runs whenever we call it
+//executor function contains two parameter resolve and reject
 
 
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery draw is happening');
+  setTimeout(function () {
+    if (Math.random() >= 0.5) {
+      resolve('You Won🎉');
+    } else {
+      reject(new Error('You lost your money🗿'));
+    }
+  }, 2000);
+});
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+//this is promisifying means  convert callback based asynchronus behavior to promise based
 
+//Promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+wait(1)
+  .then(() => {
+    console.log('1 second Passed');
+    return wait(2);
+  })
+  .then(() => {
+    console.log('2 second passed');
+    return wait(3);
+  })
+  .then(() => {
+    console.log('3 second passed');
+    return wait(4);
+  })
+  .then(() => {
+    console.log('4 second passed');
+    return wait(5);
+  })
+  .then(() => {
+    console.log('5 second passed');
+  });
+  
+//callback hell
+// setTimeout(() => {
+  //   console.log('1 Second Passed');
+  //   setTimeout(() => {
+    //     console.log('2 Second Passed');
+//     setTimeout(() => {
+//       console.log('3 Second Passed');
+//       setTimeout(() => {
+  //         console.log('4 Second Passed');
+//         setTimeout(() => {
+  //           console.log('5 Second Passed');
+//         }, 1000);
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject(new Error('Problem')).catch(x => console.error(x));
+//let understand how fetch and promise exactly works
+
+//promisying the geolocation api
+
+console.log('Getting position');
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+
+    navigator.geolocation.getCurrentPosition(
+      position => console.log(position),
+      err => console.error(err)
+    );
+  });
+};
+
+//////////////////////////DEEPER/////////////////////////////////////
+//lets build our own promise
+//lets take an analogy of promise as  a lottery
+//fulfilled promise to win the lottery
+//rejected mean to lose
+
+//create a promise using promise constructor
+//promises are special kind of objects in js
+//promise constructor take exactly one argument==>so called executor function
+//whenever a promise object creates it will automatically create the executor function
+//executor funciton have two arguments one is resolve and another is reject[they both argument are also functions]
+//now we stored the results into lotteryPromise variable which same as fetch api(means basically return a promise)
+//now here this  executor function is the function which contain the aynchronous behevior  that we tryin to handle with promise
+//so this executor function shuld eventually produce a result value.
+//value that basically stored by promise.
+const lotteryPromise = new Promise(function (resolve, reject) {
+  if (Math.random() >= 0.5) {
+    //in order to set promise to be fulfilled we use resolve function like this
+    //in resolve function we pass the value which fulfilled after request fulfilled
+    //so we can access them later by using then method
+    resolve('You win');
+  }
+});
+lotteryPromise.then(a => console.log(a));
+//i hope it will clear to u know
+//lets understand more here that how to handle reject promises here
+
+//here we handled the reject as well
+//which call rejct function for that
+//we pass the error message which we gonna later handle using catch
+const lotteryPromise = new Promise(function (resolve, reject) {
+  if (Math.random() >= 0.5) {
+    resolve('You win');
+  } else {
+    reject('YOU LOST BROTHER');
+  }
+});
+//so now as lotteryPromise is the promise object do have then,catch,finally method
+//this then method will provide the string we featured in resolve method
+lotteryPromise.then(res => console.log(res));
+//now since reject function return error which now handled by using catch method
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+
+//but this is not asynchronus,to make it asynch lets use setTimer
+//this is how we build promise
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery Draw is happening');
+  setTimeout(() => {
+    if (Math.random() >= 0.5) {
+      resolve('You won');
+    } else {
+      reject(new Error('You lost brother'));
+    }
+  }, 2000);
+});
+//this is how we consume promise
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+//most often we only consume promise and building promise only to wrap old callback based
+//functions into promises and this process is know as promisifying
+//promisifying mean converting callback based asynchronus behavior to a promise based
+
+//what does it mean
+//lets understand
+//promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+wait(1)
+.then(() => {
+  console.log(`I waited for 1 seconds`);
+  return wait(2);
+})
+.then(() => console.log('2 second wait'));
+
+const wait = function (seconds) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+wait(1)
+.then(() => {
+  console.log(`I waited for 1 seconds`);
+  return wait(2);
+})
+.then(() => {
+  console.log(`I waited for 2 seconds`);
+  return wait(3);
+  })
+  .then(() => {
+    console.log(`I waited for 3 seconds`);
+    return wait(4);
+  })
+  .then(() => {
+    console.log(`I waited for 4 seconds`);
+    return wait(5);
+  });
+  // .then(() => console.log('I waited for 1 second'));
+  
+  // setTimeout(() => {
+//   console.log('1 Second Passed');
+//   setTimeout(() => {
+//     console.log('2 Second Passed');
+//     setTimeout(() => {
+  //       console.log('3 Second Passed');
+  //       setTimeout(() => {
+    //         console.log('4 Second Passed');
+    //         setTimeout(() => {
+      //           console.log('5 Second Passed');
+      //         }, 1000);
+      //       }, 1000);
+      //     }, 1000);
+      //   }, 1000);
+      // }, 1000);
+      
+//more easier way to handle fulfilled or rejected promises
+
+//here Promise is definitely a constructor function(bhai p bada h) now resolve is static method on
+//Promise
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject(new Error('Problem')).then(x => console.log(x));
+
+//promisifying the geolocation api
+
+//just understand like first argument is for resolve and second argument(callback function)
+//is for the reject
+//lookin at this synatx u understand that this is callback based api
+navigator.geolocation.getCurrentPosition(
+  pos => console.log(pos),
+  err => console.error(err)
+  );
+  //it will log first and navigator api will be definitely later since its offloading in web api environment
+  //and load whenever it results
+// console.log('Getting position');
+
+//since it is callback api lets change into promise based api or to say promisifying geolocation
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(position),
+      err => reject(err)
+      );
+    });
+  };
+  */
+//in more simple terms
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+// getPosition().then(pos => console.log(pos));
+
+//challangeOne
+const whereAmI = function (lat, lng) {
+  getPosition()
+    .then(pos => {
+      // console.log(pos.coords);
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return fetch(
+        `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}&api_key=65c6046e1baee391324490natfff805`
+      );
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      console.log(data);
+      return fetch(`https://restcountries.com/v2/name/${data.address.country}`);
+    })
+    .then(res => {
+      console.log(res);
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`${err.message} 💥`));
+};
+btn.addEventListener('click', whereAmI);
