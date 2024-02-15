@@ -19,6 +19,9 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
+///REVISING THE GAME OF ASYNC
+//1XMLHTTPREQUEST
+
 /*
 ////SYNCHRONOUS CODE
 //when a code is synchronous it will execute line by line and each line waits for
@@ -35,8 +38,10 @@ const renderCountry = function (data, className = '') {
 //example being==>Geolocation Api or AJAX calls
 
 ///AJAX
-//asynchronous javascript and xml==allow us to communicate with remote web servers
-//in an asynchronous way.with AJAX calls,we can request data from web servers dynamically
+//asynchronous javascript and xml==allow us to communicate with remote
+ web servers
+//in an asynchronous way.with AJAX calls,we can request data
+ from web servers dynamically
 
 //API
 //Application programming interface:piece of software that can be used by another
@@ -177,7 +182,7 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
-//////////i want  to call neighbour of frrst country called
+//////////i want  to call neighbour of first country called
 const getCountryAndNeighbour = function (country) {
   //Ajax call:country 1
   const request = new XMLHttpRequest();
@@ -214,7 +219,7 @@ setTimeout(() => {
       setTimeout(() => {
         console.log('4 Second Passed');
         setTimeout(() => {
-          console.log('5 Second Passed');
+          console.log('5 Second Pas sed');
         }, 1000);
       }, 1000);
     }, 1000);
@@ -637,6 +642,7 @@ const wait = function (seconds) {
     setTimeout(resolve, seconds * 1000);
   });
 };
+
 wait(1)
   .then(() => {
     console.log('1 second Passed');
@@ -937,16 +943,28 @@ GOOD LUCK 😀
 //now understand one thing,that await will execute after fulfilled fetch promise
 //and this executed code will be part of async function resolved
 //remember that async await are just synthetic sugar over
-const whereAmI = async function (country) {
-  // fetch(`https://restcountries.com/v2/name/${country}`).then(res =>{
-  // console.log(res)
-  // res.json()).then((data)=>{
-  // console.log(data)
-  //renderCountry(data[0])
-  // )
-  // }
-  // );
 
+//this is fetch and then method we basically learnt
+// fetch(`https://restcountries.com/v2/name/${country}`).then(res =>{
+// console.log(res)
+// res.json()).then((data)=>{
+// console.log(data)
+//renderCountry(data[0])
+// )
+// }
+// );
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+const whereAmI = async function (country) {
+  const pos = await getPosition();
+  console.log(pos);
+  const { latitude: lat, longitude: lng } = pos.coords;
+  await fetch(
+    `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}&api_key=65c6046e1baee391324490natfff805`
+  );
   const res = await fetch(`https://restcountries.com/v2/name/${country}`);
   console.log(res);
   // console.log(res.json());
