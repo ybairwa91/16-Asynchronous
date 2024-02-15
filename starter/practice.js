@@ -235,15 +235,14 @@ const getCountryData = function (country) {
   setTimeout(() => console.log('0 sec timer'), 0);
   Promise.resolve('Resolved promise 1 ').then(res => console.log(res));
   console.log('test end');
-  */
-
-//lets build promises
-//promise is the consructor function which prototype contains lot of build in methods
-//we creating a new object by using promise constructor functions
-//Promise constructor funciton has only one parameter[we call it executive function]
-
-//this is how we create a promise
-const lotteryPromise = new Promise(function (resolve, reject) {
+  
+  //lets build promises
+  //promise is the consructor function which prototype contains lot of build in methods
+  //we creating a new object by using promise constructor functions
+  //Promise constructor funciton has only one parameter[we call it executive function]
+  
+  //this is how we create a promise
+  const lotteryPromise = new Promise(function (resolve, reject) {
   console.log('Lottery draw is happening');
   setTimeout(function () {
     if (Math.random() >= 0.5) {
@@ -257,5 +256,44 @@ lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
 
 //this is promisifying means converting callback based asyncronus to promise based behaviour
 
+//promisifyig setTimeout
 
-//promisifyig
+const wait = function (seconds) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+wait(1)
+  .then(() => {
+    console.log(`1 second passed`);
+    return wait(2);
+  })
+  .then(() => {
+    console.log('2 second passed');
+    return wait(3);
+  })
+  .then(() => {
+    console.log('3 second passed');
+    return wait(4);
+  })
+  .then(() => {
+    console.log('4 second passed');
+  });
+  
+  //callback hell and its soln
+  setTimeout(() => {
+    console.log('1 second passed');
+    setTimeout(() => {
+      console.log('2 second passed');
+    });
+  });
+  
+  
+  
+  */
+
+//more shortcut to resolve and reject
+Promise.resolve('abc').then(p => console.log(p));
+Promise.reject(new Error('abc'))
+  .then(p => console.log(p))
+  .catch(err => console.error(err));
