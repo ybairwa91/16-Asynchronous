@@ -73,6 +73,10 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
 //5.we can build our own web APIs(require back end development,eg with nodejs)
 // or use 3rd party API
 //API data format--xml(widely used in back days) and JSON used now a days
+
+
+
+////////programme using xmlhttp()
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
@@ -104,8 +108,7 @@ getCountryData('United States of America');
 getCountryData('Pakistan');
 getCountryData('Italy');
 
-/*
-///////////////////////
+///refining it
 const getCountryData = function (country) {
   const request = new XMLHttpRequest();
   request.open('GET', `https://restcountries.com/v3.1/name/${country}`);
@@ -133,12 +136,11 @@ const getCountryData = function (country) {
   });
 };
 getCountryData('india');
-// getCountryData('portugal');
-*/
-//////////////////////////
+ getCountryData('portugal');
 
-///////////////////////////
-/*
+/////////////////////////////////////////////
+//---------------------How web works------------------------------------------
+
 1.Interaction between client(browser) and web server==>when we try to access a web server
 the browser which is our client sends a requests to the server and then server will then send back a 
 response.That response contains the data or the web page that we requested.
@@ -177,7 +179,7 @@ here in the case of HTTP it allows client and web server  to communicate
 and it works by sending requests and response messages from client to server and back
 
 
-//////////////////
+//////////////////////////////////////////////////////
 //callback hell
 //sequence of ajax call or to say how to make which call is load first and which one is later
 //or in laymen language i want to load pakistan snip after india one is loaded,lets see how it works
@@ -200,7 +202,8 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
-//////////i want  to call neighbour of first country called
+//////////
+I want  to call neighbour of first country called using xmlhttprequest
 const getCountryAndNeighbour = function (country) {
   //Ajax call:country 1
   const request = new XMLHttpRequest();
@@ -227,6 +230,7 @@ const getCountryAndNeighbour = function (country) {
 // getCountryAndNeighbour('Republic of India');
 getCountryAndNeighbour('russia');
 
+/////////////////
 //callback hell
 setTimeout(() => {
   console.log('1 Second Passed');
@@ -244,13 +248,14 @@ setTimeout(() => {
   }, 1000);
 }, 1000);
 
-//const request=new XMLHttpRequest():
-//request.open("GET","https://restcountries.com/v2/name/${country}");
+const request=new XMLHttpRequest():
+request.open("GET","https://restcountries.com/v2/name/${country}");
+request.send()
 
-//request.send()
-/////
-*/
-/*
+
+
+/////////////////
+
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
@@ -270,33 +275,35 @@ const renderCountry = function (data, className = '') {
   countriesContainer.insertAdjacentHTML('beforeend', html);
   countriesContainer.style.opacity = 1;
 };
-*/
-////Consuming promises
 
-// const getCountryData = function (country) {
-//   fetch(`https://restcountries.com/v2/name/${country}`)
-//     .then(function (response) {
-//       console.log(response);
-//       return response.json();
-//     })
-//     .then(function (data) {
-//       console.log(data);
-//       renderCountry(data[0]);
-//     });
-// };
 
-// getCountryData('usa');
+//////////////////////////////////////////////
+//-------------------Consuming promises------------------------------
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v2/name/${country}`)
+    .then(function (response) {
+      console.log(response);
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data);
+      renderCountry(data[0]);
+    });
+};
+
+ getCountryData('usa');
 
 //callback helll is one thing we can escape using the promises
-// const getCountryData = function (country) {
-//   fetch(`https://restcountries.com/v2/name/${country}`)
-//     .then(response => response.json())
-//     .then(data => renderCountry(data[0]));
-// };
 
-// getCountryData('usa');
-// getCountryData('Republic of india');
-// getCountryData('Republic of india');
+const getCountryData = function (country) {
+  fetch(`https://restcountries.com/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => renderCountry(data[0]));
+};
+
+getCountryData('usa');
+getCountryData('Republic of india');
+getCountryData('Republic of india');
 
 ///////////////
 //Topic--We learnt about what is synchronus and asynschronus programminh,method like eventlistener or say callback function to achieve async while
