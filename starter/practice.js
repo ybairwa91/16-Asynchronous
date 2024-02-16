@@ -290,10 +290,36 @@ wait(1)
   
   
   
-  */
-
-//more shortcut to resolve and reject
+  
+  //more shortcut to resolve and reject
 Promise.resolve('abc').then(p => console.log(p));
 Promise.reject(new Error('abc'))
   .then(p => console.log(p))
   .catch(err => console.error(err));
+
+  */
+
+//let promisifying geolocation api
+
+// navigator.geolocation.getCurrentPosition(
+//   // pos => console.log(pos),
+//   err => console.error(err)
+// );
+
+//lets change into promise based
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(
+      // pos => resolve(pos)
+      resolve,
+      reject
+      // err => reject(err)
+    );
+  });
+};
+//in more simple terms
+getPosition().then(pos => console.log(pos));
+
+
+///consuming promise

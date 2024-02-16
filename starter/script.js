@@ -3,30 +3,43 @@
 ////////forever codes
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
+
 const renderCountry = function (data, className = '') {
-  const html = `<article class="country  ${className}">
-  <img class="country__img" src="${data.flag}" />
-  <div class="country__data">
-    <h3 class="country__name">${data.name}</h3>
-    <h4 class="country__region">${data.region}</h4>
-    <p class="country__row"><span>👫</span>${(
-      +data.population / 1000000
-    ).toFixed(1)}M people</p>
-    <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
-    <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
-  </div> </article>`;
+  const html = `
+  <article class="country ${className}">
+    <img class="country__img" src="${data.flag}" />
+    <div class="country__data">
+      <h3 class="country__name">${data.name}</h3>
+      <h4 class="country__region">${data.region}</h4>
+      <p class="country__row"><span>👫</span>${(
+        +data.population / 1000000
+      ).toFixed(1)} people</p>
+      <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+      <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+    </div>
+  </article>
+  `;
   countriesContainer.insertAdjacentHTML('beforeend', html);
   countriesContainer.style.opacity = 1;
 };
 
-///REVISING THE GAME OF ASYNC
-//1XMLHTTPREQUEST
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  countriesContainer.style.opacity = 1;
+};
 
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+
+    return response.json();
+  });
+};
 /*
 ////SYNCHRONOUS CODE
 //when a code is synchronous it will execute line by line and each line waits for
 //previous line to finish,
-//issue here is that long running operations block code execution
+//issue here is that long running operations block code execution,knows as blocking
 
 ///ASYNCHRNOUS CODE
 //it executed after a task that runs in the "background" finishes.
@@ -36,10 +49,15 @@ const renderCountry = function (data, className = '') {
 //callback function alone donot make code asynchronous!
 //eventListener events alone doesnot make code asynchronous
 //example being==>Geolocation Api or AJAX calls
+//some methods to achieve asynchnronus code is
+//ajax calling 
+//fetch api
+//promisifying using Promise constructor
+//async and await
 
-///AJAX
-//asynchronous javascript and xml==allow us to communicate with remote
- web servers
+/////////////////////////////////////////////////////////
+//---------------------------------1.AJAX----------------------
+//asynchronous javascript and xml==allow us to communicate with remote web servers
 //in an asynchronous way.with AJAX calls,we can request data
  from web servers dynamically
 
@@ -922,7 +940,6 @@ TEST DATA: Images in the img folder. Test the error handler by passing a wrong i
 Set the network speed to 'Fast 3G' in the dev tools Network tab, otherwise images load too fast.
 
 GOOD LUCK 😀
-*/
 
 //consuming promises with async/await
 
@@ -946,23 +963,23 @@ GOOD LUCK 😀
 
 //this is fetch and then method we basically learnt
 // fetch(`https://restcountries.com/v2/name/${country}`).then(res =>{
-// console.log(res)
-// res.json()).then((data)=>{
-// console.log(data)
-//renderCountry(data[0])
-// )
-// }
-// );
-const getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-};
-const whereAmI = async function (country) {
-  const pos = await getPosition();
-  console.log(pos);
-  const { latitude: lat, longitude: lng } = pos.coords;
-  await fetch(
+  // console.log(res)
+  // res.json()).then((data)=>{
+    // console.log(data)
+    //renderCountry(data[0])
+    // )
+    // }
+    // );
+    const getPosition = function () {
+      return new Promise(function (resolve, reject) {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+    };
+    const whereAmI = async function (country) {
+      const pos = await getPosition();
+      console.log(pos);
+      const { latitude: lat, longitude: lng } = pos.coords;
+      await fetch(
     `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}&api_key=65c6046e1baee391324490natfff805`
   );
   const res = await fetch(`https://restcountries.com/v2/name/${country}`);
@@ -974,3 +991,230 @@ const whereAmI = async function (country) {
 };
 whereAmI('Germany');
 console.log('First');
+
+//Consuming promises with async and await
+//since ES2017 its introduces and better way
+
+//without async its an synchronus function,but putting async make it
+//asynchronus[means this function will be run in the background while performing other task]
+//when a function is done it automatically returns a promise
+//important thing is here one or more await inside of async function
+//now after await we will return a promise used by fetch function
+//so await will stop decoding execution until the premise if fulfilled
+//means async function will execute and return a promise as we learnt now
+//now if promise is fulfilled then await will return its promise after
+//promise of async function is fulfilled.
+//promise returning after await is resolved value of promise and we can simply
+//store as a variable
+
+const whereAmIthen = function (country) {
+  fetch(`https://restcountries.com/v2/name/${country}`)
+    .then(res => {
+      // console.log(res);
+      return res.json();
+    })
+    .then(val => {
+      const [data] = val;
+      // console.log(data);
+      renderCountry(data);
+    })
+    .then(resGeo => resGeo);
+};
+whereAmIthen('india');
+//is same as
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  // countriesContainer.style.opacity = 1;
+};
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+const whereAmI = async function (country) {
+  try {
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
+    const resGeo = await fetch(
+      `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}&api_key=65c6046e1baee391324490natfff805`
+    );
+    if (!resGeo.ok) throw new Error('Problem getting location data');
+
+    const dataGeo = await resGeo.json();
+    const res = await fetch(
+      `https://restcountries.com/v2/name/${dataGeo.address.country}`
+    );
+    if (!res.ok) throw new Error('Problem getting Country');
+    console.log(res);
+    const [data] = await res.json();
+
+    renderCountry(data);
+  } catch (err) {
+    console.log(err.message);
+    renderError(`Something went wrong ${err.message}`);
+  }
+};
+whereAmI();
+whereAmI();
+whereAmI();
+// console.log('FIRST');
+
+//remember that asyn and await are simply sythetic suger over then method,how lets see it
+//just using different way but deep inside its just same
+
+//How error handling works with async await
+
+// try {
+  //   let y = 1;
+//   const x = 2;
+//   y = 3;
+// } catch (err) {
+//   console.error(err.message);
+// }
+
+
+//How to return values from async function
+//
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+};
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+const whereAmI = async function (country) {
+  try {
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
+    const resGeo = await fetch(
+      `https://geocode.maps.co/reverse?lat=${lat}&lon=${lng}&api_key=65c6046e1baee391324490natfff805`
+    );
+    if (!resGeo.ok) throw new Error('Problem getting location data');
+
+    const dataGeo = await resGeo.json();
+    // console.log(dataGeo);
+    const res = await fetch(
+      `https://restcountries.com/v2/name/${dataGeo.address.country}`
+    );
+    if (!res.ok) throw new Error('Problem getting Country');
+    const [data] = await res.json();
+    renderCountry(data);
+    
+    return `You are in ${dataGeo.address.town} ,${dataGeo.address.country}`;
+  } catch (err) {
+    console.error(err.message);
+    renderError(`Something went wrong ${err.message}`);
+    //reject promise returned from async function
+    throw err;
+  }
+};
+console.log(`1:will get location`);
+// whereAmI()
+//   .then(city => console.log(`2:${city}`))
+//   .catch(err => console.error(`2:${err.message}`))
+//   .finally(() => {
+  //     console.log('3:finished getting location');
+//   });
+
+/////use of iife
+(async function () {
+  try {
+    const city = await whereAmI();
+    console.log(`2:${city}`);
+  } catch (err) {
+    console.error(`2:${err.message}`);
+  }
+  console.log('3:finished getting location');
+})();
+
+
+
+//promise.all method
+//learning if we have more than one promise in asyn function then we use promise.all way to do await parallel means running all await promise
+//parallely
+//here one reject in any of the promise will reject all so keep in mind
+const get3Countries = async function (c1, c2, c3) {
+  try {
+    const data = await Promise.all([
+      getJSON(`https://restcountries.com/v2/name/${c1}`),
+      getJSON(`https://restcountries.com/v2/name/${c2}`),
+      getJSON(`https://restcountries.com/v2/name/${c3}`),
+    ]);
+    // console.log();
+    console.log(data.map(ele => ele[0].capital));
+  } catch (err) {
+    console.error(err);
+  }
+};
+get3Countries('portugal', 'canada', 'usa');
+
+///promise.race
+//it recieves an array of promise and return an array of promise
+//it settles as soon as one of the input promise settles
+//settle means a value is available no matter if the promise got rejected or fulfilled
+//and the first settled promise wins the race
+//we here not get the array of result but the result which won or say which fulfilled first.
+//helpful against never ending promises or say very long running promises
+
+(async function () {
+  const race = await Promise.race([
+    getJSON(`https://restcountries.com/v2/name/italyy`),
+    getJSON(`https://restcountries.com/v2/name/japan`),
+    getJSON(`https://restcountries.com/v2/name/china`),
+  ]);
+  console.log(race[0].capital);
+})();
+
+//for ex lets say user have very bad internet connection that it might take way too long to actually be useful
+//in that case we can create a special timeout promise which reject after a certain time has passed
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('Request took too long'));
+    }, sec * 1000);
+  });
+};
+//
+Promise.race([
+  getJSON(`https://restcountries.com/v2/name/tanzania`),
+  timeout(0.01),
+])
+.then(res => console.log(res[0]))
+.catch(err => console.error(err));
+*/
+
+//////////
+//Promise.allSettled[ES2020]
+//it takes array of promise and return an array of all settled promises(ignores the rejected promises)
+//where promise.all shortcircut as soon as one rejects
+//but it will never shortcircuit
+
+Promise.allSettled([
+  Promise.resolve('success1'),
+  Promise.reject('failed'),
+  Promise.resolve('success2'),
+  Promise.resolve('success3'),
+]).then(res => console.log(res));
+
+Promise.all([
+  Promise.resolve('success1'),
+  Promise.reject('failed'),
+  Promise.resolve('success2'),
+  Promise.resolve('success3'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+//Promise.any [ES2021]
+//return first fulfilled promise and simply ignore all rejected one[where promise.race return first fulfilled but rejected are not ignored here]
+Promise.any([
+  Promise.resolve('success1'),
+  Promise.reject('failed'),
+  Promise.resolve('success2'),
+  Promise.resolve('success3'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
